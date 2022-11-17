@@ -24,17 +24,17 @@ public class Solution {
 
     private static int getEquRes(int[] pegs, int maxN, int equRes) {
         for (int i = 0; i < maxN + 1; i++) {
-            System.out.println(equRes);
-            if (i != 0 || i != maxN) {
+            System.out.println("Peg no." + i + "\nEquation Result so far: " + equRes + "\nPeg position: " + pegs[i]);
+            if (i != 0 && i != maxN) {
                 if (i % 2 == 0) {
-                    equRes = equRes - pegs[i] * 2;
+                    equRes = equRes + (pegs[i] * 2);
                 }
                 else {
-                    equRes = equRes + pegs[i] * 2;
+                    equRes = equRes - (pegs[i] * 2);
                 }
             }
             if (i == 0) {
-                equRes = equRes - pegs[i];
+                equRes = equRes + pegs[i];
             }
             if (i == maxN){
                 equRes = equRes + pegs[i];
