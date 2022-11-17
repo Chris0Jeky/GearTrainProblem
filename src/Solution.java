@@ -6,9 +6,16 @@ public class Solution {
             result = new int[]{-1, -1};
             return result;
         }
-        result = new int[]{equationBuilder(pegs), 1};
-        return result;
+        int equationResult = equationBuilder(pegs);
+        boolean isGood = pegListValidation(pegs, equationResult);
+        if (!isGood){
+            return result = new int[]{-1, -1};
+        } else{
+            result = new int[]{equationResult, 1};
+            return result;
+        }
     }
+
     public static int equationBuilder(int[] pegs){
         int maxN = pegs.length - 1;
         int equRes = 0;
@@ -19,8 +26,14 @@ public class Solution {
         else {
             equRes = equRes * -1;
         }
-        return equRes;
+        if (equRes % 2 != 0){
+            return -1;
+        }
+        else {
+            return equRes;
+        }
     }
+
 
     // given the following equation if the number of pegs is odd:
     // peg1 - 2*peg2 + 2*peg3 - 2*peg4 (...) + pegN
@@ -63,5 +76,18 @@ public class Solution {
             }
         }
         return equRes;
+    }
+    public static boolean pegListValidation(int[] pegs, int radOfFirstPeg){
+        int radiusOfPeg = radOfFirstPeg;
+        for (int i = 1; i < pegs.length; i++){
+            radiusOfPeg = pegs[i] - pegs[i - 1] - radiusOfPeg;
+            if (radiusOfPeg < 1){
+                return false;
+            }
+        }
+        if (radOfFirstPeg / 2 != radiusOfPeg){
+            return false;
+        }
+        return true;
     }
 }
