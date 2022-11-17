@@ -22,22 +22,44 @@ public class Solution {
         return equRes;
     }
 
+    // given the following equation if the number of pegs is odd:
+    // peg1 - 2*peg2 + 2*peg3 - 2*peg4 (...) + pegN
+    // the function beneath alternates a positive and a negative value of double the indexed peg
+    // except for the first and last peg
     private static int getEquRes(int[] pegs, int maxN, int equRes) {
         for (int i = 0; i < maxN + 1; i++) {
             System.out.println("Peg no." + i + "\nEquation Result so far: " + equRes + "\nPeg position: " + pegs[i]);
             if (i != 0 && i != maxN) {
-                if (i % 2 == 0) {
-                    equRes = equRes + (pegs[i] * 2);
+                if (pegs.length % 2 == 0){
+                    if (i % 2 == 0) {
+                        equRes = equRes - (pegs[i] * 2);
+                    } else {
+                        equRes = equRes + (pegs[i] * 2);
+                    }
                 }
                 else {
-                    equRes = equRes - (pegs[i] * 2);
+                    if (i % 2 == 0) {
+                        equRes = equRes + (pegs[i] * 2);
+                    } else {
+                        equRes = equRes - (pegs[i] * 2);
+                    }
                 }
             }
-            if (i == 0) {
-                equRes = equRes + pegs[i];
+            if (pegs.length % 2 == 0) {
+                if (i == 0) {
+                    equRes = equRes - pegs[i];
+                }
+                if (i == maxN) {
+                    equRes = equRes + pegs[i];
+                }
             }
-            if (i == maxN){
-                equRes = equRes + pegs[i];
+            else {
+                if (i == 0) {
+                    equRes = equRes + pegs[i];
+                }
+                if (i == maxN) {
+                    equRes = equRes + pegs[i];
+                }
             }
         }
         return equRes;

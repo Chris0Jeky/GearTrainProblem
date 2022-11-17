@@ -5,5 +5,7 @@ public class Main {
         System.out.println(arr[0]);
         arr = Solution.solution(new int[]{5, 21, 36, 56, 72});
         System.out.println(arr[0]);
+        arr = Solution.solution(new int[]{2, 17, 26, 35});
+        System.out.println(arr[0]);
     }
 }
