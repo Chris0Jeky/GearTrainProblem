@@ -24,7 +24,7 @@ public class Solution {
             equRes = (int) (equRes / 1.5);
         }
         else {
-            equRes = equRes * -1;
+            equRes = equRes * 2 * -1;
         }
         if (equRes % 2 != 0){
             return -1;
@@ -41,7 +41,6 @@ public class Solution {
     // except for the first and last peg
     private static int getEquRes(int[] pegs, int maxN, int equRes) {
         for (int i = 0; i < maxN + 1; i++) {
-            System.out.println("Peg no." + i + "\nEquation Result so far: " + equRes + "\nPeg position: " + pegs[i]);
             if (i != 0 && i != maxN) {
                 if (pegs.length % 2 == 0){
                     if (i % 2 == 0) {
@@ -80,14 +79,24 @@ public class Solution {
     public static boolean pegListValidation(int[] pegs, int radOfFirstPeg){
         int radiusOfPeg = radOfFirstPeg;
         for (int i = 1; i < pegs.length; i++){
+            System.out.println("Radius of Current Peg " + radiusOfPeg);
+            System.out.println("Radius of First Peg " + radOfFirstPeg);
+            System.out.println("Current Peg " + pegs[i]);
+            System.out.println("Previous Peg " + pegs[i-1]);
+            System.out.println();
+            System.out.println("Radius of current peg = \n" + pegs[i] + " - " + pegs[i-1] + " - " + radiusOfPeg);
             radiusOfPeg = pegs[i] - pegs[i - 1] - radiusOfPeg;
-            if (radiusOfPeg < 1){
+            if (radiusOfPeg < 0){
                 return false;
             }
         }
         if (radOfFirstPeg / 2 != radiusOfPeg){
+            System.out.println("Radius of First Peg " + radOfFirstPeg);
+            System.out.println("Radius of Current Peg " + radiusOfPeg);
             return false;
         }
+        System.out.println(radOfFirstPeg);
+        System.out.println(radiusOfPeg);
         return true;
     }
 }
