@@ -6,34 +6,38 @@ public class Solution {
             result = new int[]{-1, -1};
             return result;
         }
-
-        return pegs;
+        result = new int[]{equationBuilder(pegs), 1};
+        return result;
     }
     public static int equationBuilder(int[] pegs){
         int maxN = pegs.length - 1;
         int equRes = 0;
+        equRes = getEquRes(pegs, maxN, equRes);
         if (pegs.length % 2 == 0){
-            for (int i = 0; i < maxN + 1; i++) {
-                if (i != 0 || i != maxN) {
-                    if (i % 2 == 0) {
-                        equRes = equRes - pegs[i];
-                    }
-                    else {
-                        equRes = equRes + pegs[i];
-                    }
-                }
-                if (i == 0) {
-                    equRes = equRes - pegs[i];
-                }
-                if (i == maxN){
-                    equRes = equRes + pegs[i];
-                }
-            }
             equRes = (int) (equRes / 1.5);
         }
         else {
-            for (int i = 0; i < maxN + 1; i++) {
-                
+            equRes = equRes * -1;
+        }
+        return equRes;
+    }
+
+    private static int getEquRes(int[] pegs, int maxN, int equRes) {
+        for (int i = 0; i < maxN + 1; i++) {
+            System.out.println(equRes);
+            if (i != 0 || i != maxN) {
+                if (i % 2 == 0) {
+                    equRes = equRes - pegs[i] * 2;
+                }
+                else {
+                    equRes = equRes + pegs[i] * 2;
+                }
+            }
+            if (i == 0) {
+                equRes = equRes - pegs[i];
+            }
+            if (i == maxN){
+                equRes = equRes + pegs[i];
             }
         }
         return equRes;
