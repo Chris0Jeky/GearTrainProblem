@@ -2,36 +2,43 @@ public class Solution {
     public static int[] solution(int[] pegs) {
         int maxN = pegs.length - 1;
         int[] result;
-        if (pegs == null || maxN + 1 < 2) {
+        if (pegs == null || maxN + 1 < 2 || maxN + 1 > 20) {
             result = new int[]{-1, -1};
             return result;
         }
-        int equationResult = equationBuilder(pegs);
-        boolean isGood = pegListValidation(pegs, equationResult);
+        int equationResult = equationBuilder(pegs)[0];
+        boolean isGood = pegListValidation(pegs, equationResult, equationBuilder(pegs)[1]);
         if (!isGood){
-            return result = new int[]{-1, -1};
+            result = new int[]{-1, -1};
+            return result;
         } else{
-            result = new int[]{equationResult, 1};
+            result = new int[]{equationResult, equationBuilder(pegs)[1]};
             return result;
         }
     }
 
-    public static int equationBuilder(int[] pegs){
+    public static int[] equationBuilder(int[] pegs){
         int maxN = pegs.length - 1;
+        int[] equResArr;
         int equRes = 0;
         equRes = getEquRes(pegs, maxN, equRes);
         if (pegs.length % 2 == 0){
-            equRes = (int) (equRes / 1.5);
+            if ((int) (equRes % 1.5) == 0) {
+                equRes = (int) (equRes / 1.5);
+                equResArr = new int[]{equRes, 1};
+            }
+            else {
+                equRes = equRes * 2;
+                equResArr = new int[]{equRes, 3};
+
+            }
         }
         else {
             equRes = equRes * 2 * -1;
+            equResArr = new int[]{equRes, 1};
         }
-        if (equRes % 2 != 0){
-            return -1;
-        }
-        else {
-            return equRes;
-        }
+        return equResArr;
+
     }
 
 
@@ -76,27 +83,32 @@ public class Solution {
         }
         return equRes;
     }
-    public static boolean pegListValidation(int[] pegs, int radOfFirstPeg){
-        int radiusOfPeg = radOfFirstPeg;
-        for (int i = 1; i < pegs.length; i++){
-            System.out.println("Radius of Current Peg " + radiusOfPeg);
-            System.out.println("Radius of First Peg " + radOfFirstPeg);
-            System.out.println("Current Peg " + pegs[i]);
-            System.out.println("Previous Peg " + pegs[i-1]);
-            System.out.println();
-            System.out.println("Radius of current peg = \n" + pegs[i] + " - " + pegs[i-1] + " - " + radiusOfPeg);
-            radiusOfPeg = pegs[i] - pegs[i - 1] - radiusOfPeg;
-            if (radiusOfPeg < 0){
-                return false;
-            }
-        }
-        if (radOfFirstPeg / 2 != radiusOfPeg){
-            System.out.println("Radius of First Peg " + radOfFirstPeg);
-            System.out.println("Radius of Current Peg " + radiusOfPeg);
+    public static boolean pegListValidation(int[] pegs, int radOfFirstPeg, int denom) {
+        double radiusOfPeg = radOfFirstPeg;
+        if (radOfFirstPeg < 2) {
             return false;
         }
-        System.out.println(radOfFirstPeg);
-        System.out.println(radiusOfPeg);
-        return true;
+        if (denom == 3){
+            for (int i = 1; i < pegs.length; i++) {
+                radiusOfPeg = pegs[i]*3 - pegs[i - 1]*3 - radiusOfPeg;
+                if (radiusOfPeg < 0) {
+                    return false;
+                }
+            }
+        }
+        else {
+            for (int i = 1; i < pegs.length; i++) {
+                radiusOfPeg = pegs[i] - pegs[i - 1] - radiusOfPeg;
+                if (radiusOfPeg < 0) {
+                    return false;
+                }
+            }
+        }
+
+        if ((double) radOfFirstPeg / 2 != radiusOfPeg) {
+            return false;
+        } else {
+            return true;
+        }
     }
 }
