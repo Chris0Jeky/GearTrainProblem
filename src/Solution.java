@@ -1,5 +1,12 @@
 public class Solution {
     public static int[] solution(int[] pegs) {
+
+        /*
+        * This block of code is checking if the input "pegs" is valid, and if it is, it calculates the result using the
+        *  "equationBuilder" method and validates it using the "pegListValidation" method. If the input is invalid or
+        *  the validation fails, it returns an array with the values -1, -1. If everything is valid, it returns an
+        *  array with the calculated result and the value returned by the "equationBuilder" method.
+        * */
         int maxN = pegs.length - 1;
         int[] result;
         if (pegs == null || maxN + 1 < 2 || maxN + 1 > 20) {
@@ -17,6 +24,12 @@ public class Solution {
         }
     }
 
+    /*
+    *This block of code is the "equationBuilder" method which takes in an array "pegs" as input. It calculates a value
+    * "equRes" using the "getEquRes" method and then checks if the length of the "pegs" array is even or odd.
+    *  Depending on the result, it modifies the value of "equRes" and creates an array "equResArr" with the
+    *  modified value of "equRes" and another value. It then returns this array.
+    * */
     public static int[] equationBuilder(int[] pegs){
         int maxN = pegs.length - 1;
         int[] equResArr;
