@@ -543,8 +543,16 @@
         
         // Animation speed control
         document.getElementById('animSpeed').addEventListener('input', function(e) {
-            animationSpeed = parseFloat(e.value);
-            document.getElementById('speedValue').textContent = animationSpeed.toFixed(1) + 'x';
+            const newSpeed = parseFloat(e.target.value);
+            if (!isNaN(newSpeed) && isFinite(newSpeed)) {
+                animationSpeed = newSpeed;
+                document.getElementById('speedValue').textContent = animationSpeed.toFixed(1) + 'x';
+            } else {
+                // Reset to default if invalid
+                animationSpeed = 1;
+                e.target.value = '1';
+                document.getElementById('speedValue').textContent = '1.0x';
+            }
         });
 
         function solution(pegs) {
@@ -855,6 +863,10 @@
             
             let rotation = 0;
             const animate = () => {
+                // Ensure animationSpeed is valid
+                if (isNaN(animationSpeed) || !isFinite(animationSpeed)) {
+                    animationSpeed = 1;
+                }
                 rotation += animationSpeed;
                 
                 currentGears.forEach((gear, i) => {
@@ -929,7 +941,18 @@
         }
 
         // Load initial example
-        window.onload = () => visualizeProblem();
+        window.onload = () => {
+            // Initialize speed control
+            const speedSlider = document.getElementById('animSpeed');
+            const speedDisplay = document.getElementById('speedValue');
+            if (speedSlider && speedDisplay) {
+                speedSlider.value = '1';
+                speedDisplay.textContent = '1.0x';
+                animationSpeed = 1;
+            }
+            
+            visualizeProblem();
+        };
     </script>
 </body>
 </html>
