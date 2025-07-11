@@ -198,6 +198,45 @@ This type of problem appears in:
 - **Clock Making**: Gear ratio calculations
 - **Manufacturing**: Precision machinery design
 
+## 🎮 Interactive Demonstrations
+
+The project includes multiple visualization tools:
+
+### 1. **Enhanced Web Visualizer** (`visual-demo-enhanced.html`)
+- Advanced animation controls with variable speed
+- 12+ example configurations including edge cases
+- Real-time mechanical statistics:
+  - Total teeth count
+  - Gear ratio calculations
+  - Mechanical advantage
+  - Total system distance
+- Challenge mode for testing different configurations
+- Mathematical formula display option
+- Color-coded gears (green for first, blue for last)
+
+### 2. **Java Swing GUI** (`GearTrainGUI.java`)
+- Native desktop application
+- Real-time gear animation
+- Quick example buttons
+- Detailed results display
+- Cross-platform compatibility
+
+### 3. **Original Web Demo** (`visual-demo.html`)
+- Clean, simple interface
+- Basic animation functionality
+- Perfect for quick demonstrations
+
+## 🧪 Comprehensive Test Suite
+
+The enhanced `Tester.java` now includes:
+- **Basic cases**: Standard valid and invalid configurations
+- **2-peg scenarios**: Simplest gear trains
+- **Even/odd peg counts**: Different mathematical approaches
+- **Fractional results**: Testing precision handling
+- **Special patterns**: Powers of 2, linear progressions, prime-based
+- **Large scale**: Testing with values in thousands
+- **Edge cases**: Configurations that push the constraints
+
 ## 📚 Further Reading
 
 For those interested in the underlying concepts:
