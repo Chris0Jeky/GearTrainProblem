@@ -598,8 +598,23 @@
             let den = 1;
             let lastNum = 0;
             let lastDen = 1;
+            let iterations = 0;
+            const maxIterations = 1000;
             
-            while (Math.abs(decimal - num / den) > tolerance) {
+            // Handle edge cases
+            if (!isFinite(decimal) || isNaN(decimal)) {
+                return [-1, -1];
+            }
+            
+            // Check for simple fractions first
+            for (let d = 1; d <= 10; d++) {
+                const n = Math.round(decimal * d);
+                if (Math.abs(decimal - n / d) < tolerance) {
+                    return [n, d];
+                }
+            }
+            
+            while (Math.abs(decimal - num / den) > tolerance && iterations < maxIterations) {
                 if (decimal > num / den) {
                     lastNum = num;
                     lastDen = den;
@@ -613,6 +628,12 @@
                     lastNum = tempNum;
                     lastDen = tempDen;
                 }
+                iterations++;
+            }
+            
+            // Final validation
+            if (!isFinite(num) || !isFinite(den) || den === 0) {
+                return [-1, -1];
             }
             
             return [num, den];
