@@ -554,10 +554,14 @@
             if (n === 2) {
                 const distance = pegs[1] - pegs[0];
                 const r1 = (2.0 * distance) / 3.0;
+                const r2 = distance - r1;
                 
-                if (r1 < 1 || distance - r1 < 1) return [-1, -1];
+                if (r1 < 1 || r2 < 1) return [-1, -1];
                 
-                return toFraction(r1);
+                // For 2 pegs, we know the exact fraction is 2*distance/3
+                // Return the simplified fraction directly
+                const gcd = getGCD(2 * distance, 3);
+                return [2 * distance / gcd, 3 / gcd];
             }
 
             let sum = 0;
