@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gear Train Problem Visualizer</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 18px;
+        }
+        .controls {
+            background: #f8f8f8;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        label {
+            font-weight: 500;
+            color: #555;
+            min-width: 120px;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button.secondary {
+            background: #2196F3;
+        }
+        button.secondary:hover {
+            background: #1976D2;
+        }
+        #visualization {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+        .gear {
+            fill: none;
+            stroke: #333;
+            stroke-width: 2;
+        }
+        .gear.first {
+            stroke: #4CAF50;
+            stroke-width: 3;
+        }
+        .gear.last {
+            stroke: #2196F3;
+            stroke-width: 3;
+        }
+        .peg {
+            fill: #666;
+        }
+        .gear-teeth {
+            fill: #333;
+        }
+        .gear-teeth.first {
+            fill: #4CAF50;
+        }
+        .gear-teeth.last {
+            fill: #2196F3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f5e9;
+            border-radius: 4px;
+            border: 1px solid #4CAF50;
+        }
+        .result.error {
+            background: #ffebee;
+            border-color: #f44336;
+        }
+        .result h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .info-box {
+            margin: 20px 0;
+            padding: 15px;
+            background: #e3f2fd;
+            border-radius: 4px;
+            border-left: 4px solid #2196F3;
+        }
+        .gear-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .gear-card {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        .gear-card h4 {
+            margin: 0 0 5px 0;
+            color: #555;
+        }
+        .example-buttons {
+            margin-top: 10px;
+        }
+        .example-buttons button {
+            font-size: 14px;
+            padding: 6px 12px;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Gear Train Problem Visualizer</h1>
+        <p class="subtitle">Google Foobar Challenge: Calculate gear radii where the first gear rotates at 2x the speed of the last gear</p>
+        
+        <div class="info-box">
+            <strong>Problem:</strong> Given peg positions, find the radius of the first gear such that when all gears mesh properly, the first gear rotates at exactly twice the speed of the last gear. All gear radii must be ≥ 1.
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label for="pegInput">Peg Positions:</label>
+                <input type="text" id="pegInput" placeholder="e.g., 4, 30, 50" value="4, 30, 50">
+            </div>
+            <button onclick="visualizeProblem()">Visualize Solution</button>
+            <button class="secondary" onclick="animateGears()">Animate Rotation</button>
+            
+            <div class="example-buttons">
+                <strong>Try examples:</strong><br>
+                <button onclick="loadExample([4, 30, 50])">Valid: [4, 30, 50]</button>
+                <button onclick="loadExample([4, 17, 50])">Invalid: [4, 17, 50]</button>
+                <button onclick="loadExample([10, 30, 40, 60])">4 Pegs: [10, 30, 40, 60]</button>
+                <button onclick="loadExample([4, 8, 16, 32, 64])">5 Pegs: Powers of 2</button>
+            </div>
+        </div>
+
+        <div id="visualization">
+            <svg id="gearSvg"></svg>
+        </div>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        let currentGears = [];
+        let animationId = null;
+
+        function solution(pegs) {
+            const n = pegs.length;
+            if (n < 2) return [-1, -1];
+
+            // For n pegs, we have n-1 equations from gear meshing
+            // Plus 1 equation from the speed constraint
+            // This gives us a system of linear equations
+
+            if (n === 2) {
+                // Simple case: r1 + r2 = distance, r1 = 2 * r2
+                // So r1 = 2/3 * distance
+                const distance = pegs[1] - pegs[0];
+                const r1 = (2.0 * distance) / 3.0;
+                
+                if (r1 < 1 || distance - r1 < 1) return [-1, -1];
+                
+                // Convert to fraction
+                return toFraction(r1);
+            }
+
+            // For n > 2, use the mathematical solution
+            let sum = 0;
+            for (let i = 0; i < n - 1; i++) {
+                sum += Math.pow(-1, i) * (pegs[i + 1] - pegs[i]);
+            }
+
+            let numerator, denominator;
+            if (n % 2 === 0) {
+                // Even number of pegs
+                numerator = 2 * sum;
+                denominator = 3;
+            } else {
+                // Odd number of pegs
+                numerator = 2 * sum;
+                denominator = 1;
+            }
+
+            // Simplify fraction
+            const gcd = getGCD(Math.abs(numerator), denominator);
+            numerator /= gcd;
+            denominator /= gcd;
+
+            // Validate all gear radii
+            const r1 = numerator / denominator;
+            if (r1 < 1) return [-1, -1];
+
+            let currentRadius = r1;
+            for (let i = 0; i < n - 1; i++) {
+                const distance = pegs[i + 1] - pegs[i];
+                const nextRadius = distance - currentRadius;
+                if (nextRadius < 1) return [-1, -1];
+                currentRadius = nextRadius;
+            }
+
+            return [numerator, denominator];
+        }
+
+        function toFraction(decimal) {
+            const tolerance = 1e-6;
+            let num = 1;
+            let den = 1;
+            let lastNum = 0;
+            let lastDen = 1;
+            
+            while (Math.abs(decimal - num / den) > tolerance) {
+                if (decimal > num / den) {
+                    lastNum = num;
+                    lastDen = den;
+                    num = num + lastNum;
+                    den = den + lastDen;
+                } else {
+                    const tempNum = num;
+                    const tempDen = den;
+                    num = lastNum + num;
+                    den = lastDen + den;
+                    lastNum = tempNum;
+                    lastDen = tempDen;
+                }
+            }
+            
+            return [num, den];
+        }
+
+        function getGCD(a, b) {
+            while (b !== 0) {
+                const temp = b;
+                b = a % b;
+                a = temp;
+            }
+            return a;
+        }
+
+        function calculateAllRadii(pegs, firstRadius) {
+            const radii = [firstRadius];
+            for (let i = 0; i < pegs.length - 1; i++) {
+                const distance = pegs[i + 1] - pegs[i];
+                const nextRadius = distance - radii[i];
+                radii.push(nextRadius);
+            }
+            return radii;
+        }
+
+        function drawGear(svg, x, y, radius, teeth, rotation, className = '') {
+            const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            g.setAttribute('transform', `translate(${x}, ${y}) rotate(${rotation})`);
+            
+            // Draw gear circle
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('r', radius);
+            circle.setAttribute('class', `gear ${className}`);
+            g.appendChild(circle);
+            
+            // Draw teeth
+            const toothHeight = Math.min(8, radius * 0.15);
+            const angleStep = 360 / teeth;
+            
+            for (let i = 0; i < teeth; i++) {
+                const angle = i * angleStep;
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                const startAngle = (angle - angleStep/4) * Math.PI / 180;
+                const endAngle = (angle + angleStep/4) * Math.PI / 180;
+                
+                const x1 = radius * Math.cos(startAngle);
+                const y1 = radius * Math.sin(startAngle);
+                const x2 = (radius + toothHeight) * Math.cos(angle * Math.PI / 180);
+                const y2 = (radius + toothHeight) * Math.sin(angle * Math.PI / 180);
+                const x3 = radius * Math.cos(endAngle);
+                const y3 = radius * Math.sin(endAngle);
+                
+                path.setAttribute('d', `M ${x1} ${y1} L ${x2} ${y2} L ${x3} ${y3}`);
+                path.setAttribute('class', `gear-teeth ${className}`);
+                g.appendChild(path);
+            }
+            
+            // Draw center peg
+            const peg = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            peg.setAttribute('r', 3);
+            peg.setAttribute('class', 'peg');
+            g.appendChild(peg);
+            
+            svg.appendChild(g);
+            return g;
+        }
+
+        function visualizeProblem() {
+            const input = document.getElementById('pegInput').value;
+            const pegs = input.split(',').map(x => parseInt(x.trim())).filter(x => !isNaN(x));
+            
+            if (pegs.length < 2) {
+                showError('Please enter at least 2 peg positions');
+                return;
+            }
+            
+            // Sort pegs
+            pegs.sort((a, b) => a - b);
+            
+            const result = solution(pegs);
+            const svg = document.getElementById('gearSvg');
+            svg.innerHTML = '';
+            currentGears = [];
+            
+            // Set up SVG viewport
+            const svgWidth = svg.clientWidth;
+            const svgHeight = svg.clientHeight;
+            const padding = 50;
+            
+            const minPeg = Math.min(...pegs);
+            const maxPeg = Math.max(...pegs);
+            const scale = (svgWidth - 2 * padding) / (maxPeg - minPeg || 1);
+            
+            if (result[0] === -1) {
+                showError('No valid solution exists for these peg positions');
+                
+                // Still draw the pegs
+                pegs.forEach(peg => {
+                    const x = padding + (peg - minPeg) * scale;
+                    const pegCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    pegCircle.setAttribute('cx', x);
+                    pegCircle.setAttribute('cy', svgHeight / 2);
+                    pegCircle.setAttribute('r', 5);
+                    pegCircle.setAttribute('class', 'peg');
+                    svg.appendChild(pegCircle);
+                });
+                return;
+            }
+            
+            // Calculate all gear radii
+            const firstRadius = result[0] / result[1];
+            const radii = calculateAllRadii(pegs, firstRadius);
+            
+            // Draw gears
+            radii.forEach((radius, i) => {
+                const x = padding + (pegs[i] - minPeg) * scale;
+                const y = svgHeight / 2;
+                const teeth = Math.max(12, Math.floor(radius * 2));
+                const className = i === 0 ? 'first' : (i === radii.length - 1 ? 'last' : '');
+                
+                const gear = drawGear(svg, x, y, radius * scale * 0.8, teeth, 0, className);
+                currentGears.push({
+                    element: gear,
+                    radius: radius,
+                    teeth: teeth,
+                    speed: i === 0 ? 2 : (i === radii.length - 1 ? 1 : 0)
+                });
+            });
+            
+            // Show result
+            showResult(result, radii, pegs);
+        }
+
+        function showResult(result, radii, pegs) {
+            const resultDiv = document.getElementById('result');
+            const firstRadius = result[0] / result[1];
+            
+            let html = '<div class="result">';
+            html += '<h3>✅ Solution Found!</h3>';
+            html += `<p><strong>First gear radius:</strong> ${result[1] === 1 ? result[0] : result[0] + '/' + result[1]} = ${firstRadius.toFixed(3)}</p>`;
+            html += '<div class="gear-info">';
+            
+            radii.forEach((radius, i) => {
+                const speed = i === 0 ? 2 : (i === radii.length - 1 ? 1 : (i % 2 === 0 ? 2 * radii[radii.length - 1] / radius : -2 * radii[radii.length - 1] / radius));
+                html += `<div class="gear-card">`;
+                html += `<h4>Gear ${i + 1} ${i === 0 ? '(First)' : i === radii.length - 1 ? '(Last)' : ''}</h4>`;
+                html += `<div>Position: ${pegs[i]}</div>`;
+                html += `<div>Radius: ${radius.toFixed(3)}</div>`;
+                html += `<div>Relative Speed: ${Math.abs(speed).toFixed(2)}x</div>`;
+                html += `</div>`;
+            });
+            
+            html += '</div>';
+            html += '</div>';
+            
+            resultDiv.innerHTML = html;
+        }
+
+        function showError(message) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `<div class="result error"><h3>❌ Error</h3><p>${message}</p></div>`;
+        }
+
+        function animateGears() {
+            if (!currentGears.length) {
+                showError('Please visualize a solution first');
+                return;
+            }
+            
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+                return;
+            }
+            
+            let rotation = 0;
+            const animate = () => {
+                rotation += 1;
+                
+                currentGears.forEach((gear, i) => {
+                    const speed = i === 0 ? 2 : (i === currentGears.length - 1 ? 1 : 
+                        (i % 2 === 0 ? 2 * currentGears[currentGears.length - 1].radius / gear.radius : 
+                        -2 * currentGears[currentGears.length - 1].radius / gear.radius));
+                    
+                    const currentRotation = rotation * speed;
+                    gear.element.setAttribute('transform', 
+                        gear.element.getAttribute('transform').replace(/rotate\([^)]*\)/, `rotate(${currentRotation})`));
+                });
+                
+                animationId = requestAnimationFrame(animate);
+            };
+            
+            animate();
+        }
+
+        function loadExample(pegs) {
+            document.getElementById('pegInput').value = pegs.join(', ');
+            visualizeProblem();
+        }
+
+        // Load initial example
+        window.onload = () => visualizeProblem();
+    </script>
+</body>
+</html>
