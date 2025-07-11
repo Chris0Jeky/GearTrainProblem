@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gear Train Problem - Advanced Visualizer</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 1.2em;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .controls {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        
+        .control-section {
+            margin-bottom: 25px;
+        }
+        
+        .control-section h3 {
+            color: #34495e;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 8px;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 5px;
+            font-size: 0.95em;
+        }
+        
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus, input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+        
+        button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+        
+        button.primary {
+            background: #27ae60;
+        }
+        
+        button.primary:hover {
+            background: #229954;
+        }
+        
+        button.secondary {
+            background: #8e44ad;
+        }
+        
+        button.secondary:hover {
+            background: #7d3c98;
+        }
+        
+        button.danger {
+            background: #e74c3c;
+        }
+        
+        button.danger:hover {
+            background: #c0392b;
+        }
+        
+        button.example {
+            background: #95a5a6;
+            font-size: 14px;
+            padding: 8px 15px;
+            margin: 5px;
+        }
+        
+        button.example:hover {
+            background: #7f8c8d;
+        }
+        
+        #visualization {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            background: linear-gradient(145deg, #ffffff, #f0f0f0);
+            border-radius: 15px;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .gear {
+            fill: none;
+            stroke: #34495e;
+            stroke-width: 3;
+        }
+        
+        .gear.first {
+            stroke: #27ae60;
+            stroke-width: 4;
+        }
+        
+        .gear.last {
+            stroke: #3498db;
+            stroke-width: 4;
+        }
+        
+        .gear-fill {
+            fill: rgba(52, 73, 94, 0.05);
+        }
+        
+        .gear-fill.first {
+            fill: rgba(39, 174, 96, 0.1);
+        }
+        
+        .gear-fill.last {
+            fill: rgba(52, 152, 219, 0.1);
+        }
+        
+        .peg {
+            fill: #2c3e50;
+        }
+        
+        .gear-teeth {
+            fill: #34495e;
+        }
+        
+        .gear-teeth.first {
+            fill: #27ae60;
+        }
+        
+        .gear-teeth.last {
+            fill: #3498db;
+        }
+        
+        .speed-indicator {
+            font-size: 12px;
+            fill: #7f8c8d;
+            text-anchor: middle;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            background: #d4edda;
+            border-radius: 10px;
+            border: 2px solid #27ae60;
+            animation: slideIn 0.5s ease;
+        }
+        
+        .result.error {
+            background: #f8d7da;
+            border-color: #e74c3c;
+        }
+        
+        .result h3 {
+            margin-top: 0;
+            color: #155724;
+            font-size: 1.3em;
+        }
+        
+        .result.error h3 {
+            color: #721c24;
+        }
+        
+        .info-box {
+            margin: 20px 0;
+            padding: 20px;
+            background: #d1ecf1;
+            border-radius: 10px;
+            border-left: 5px solid #3498db;
+        }
+        
+        .gear-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .gear-card {
+            background: linear-gradient(145deg, #ffffff, #f5f5f5);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+        
+        .gear-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        
+        .gear-card h4 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+            font-size: 1.1em;
+        }
+        
+        .gear-card.first h4 {
+            color: #27ae60;
+        }
+        
+        .gear-card.last h4 {
+            color: #3498db;
+        }
+        
+        .gear-stat {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+            font-size: 0.95em;
+        }
+        
+        .gear-stat-label {
+            color: #7f8c8d;
+        }
+        
+        .gear-stat-value {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .example-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        
+        .challenge-mode {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .challenge-mode h3 {
+            color: #856404;
+            margin-top: 0;
+        }
+        
+        .stats-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .rotating {
+            animation: rotate 2s linear infinite;
+        }
+        
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        input[type="range"] {
+            flex: 1;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 30px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #3498db;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(30px);
+        }
+        
+        .formula-display {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin-top: 15px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚙️ Advanced Gear Train Problem Visualizer</h1>
+        <p class="subtitle">Google Foobar Challenge: Engineering the Perfect Gear Ratio</p>
+        
+        <div class="main-content">
+            <div class="controls">
+                <div class="control-section">
+                    <h3>🎯 Input Configuration</h3>
+                    <div class="input-group">
+                        <label for="pegInput">Peg Positions (comma-separated):</label>
+                        <input type="text" id="pegInput" placeholder="e.g., 4, 30, 50" value="4, 30, 50">
+                    </div>
+                    <button class="primary" onclick="visualizeProblem()">🔍 Analyze & Visualize</button>
+                    <button class="secondary" onclick="animateGears()">▶️ Animate</button>
+                    <button class="danger" onclick="stopAnimation()">⏹️ Stop</button>
+                </div>
+                
+                <div class="control-section">
+                    <h3>📚 Example Configurations</h3>
+                    <div class="example-grid">
+                        <button class="example" onclick="loadExample([4, 30, 50], 'Classic Valid')">Classic (3 pegs)</button>
+                        <button class="example" onclick="loadExample([10, 50], 'Simple 2 Pegs')">Simple (2 pegs)</button>
+                        <button class="example" onclick="loadExample([5, 10, 25, 40], 'Even 4 Pegs')">Even (4 pegs)</button>
+                        <button class="example" onclick="loadExample([10, 20, 30, 40, 50], 'Linear 5 Pegs')">Linear (5 pegs)</button>
+                        <button class="example" onclick="loadExample([1, 100], 'Extreme Distance')">Extreme Gap</button>
+                        <button class="example" onclick="loadExample([10, 15, 25, 35, 55], 'Fibonacci-like')">Fibonacci-like</button>
+                        <button class="example" onclick="loadExample([4, 8, 16, 32, 64], 'Powers of 2')">Powers of 2</button>
+                        <button class="example" onclick="loadExample([5, 15, 45, 135], 'Powers of 3')">×3 Growth</button>
+                        <button class="example" onclick="loadExample([100, 200, 300], 'Hundreds')">Large Scale</button>
+                        <button class="example" onclick="loadExample([11, 23, 47, 97], 'Prime-based')">Prime Gaps</button>
+                        <button class="example" onclick="loadExample([4, 17, 50], 'Invalid Case')">❌ Invalid</button>
+                        <button class="example" onclick="loadExample([10, 11, 12], 'Too Close')">❌ Too Close</button>
+                    </div>
+                </div>
+                
+                <div class="control-section">
+                    <h3>⚡ Animation Controls</h3>
+                    <div class="input-group">
+                        <label>
+                            <input type="checkbox" id="showLabels" checked onchange="updateVisualization()">
+                            Show Speed Labels
+                        </label>
+                    </div>
+                    <div class="input-group">
+                        <label>
+                            <input type="checkbox" id="showFormula" onchange="toggleFormula()">
+                            Show Mathematical Formula
+                        </label>
+                    </div>
+                    <div class="speed-control">
+                        <label>Speed:</label>
+                        <input type="range" id="animSpeed" min="0.1" max="5" step="0.1" value="1">
+                        <span id="speedValue">1.0x</span>
+                    </div>
+                </div>
+                
+                <div class="control-section">
+                    <h3>🎮 Challenge Mode</h3>
+                    <button class="primary" onclick="startChallenge()">Start Challenge</button>
+                    <button onclick="generateRandomProblem()">Random Problem</button>
+                    <div id="challengeInfo"></div>
+                </div>
+            </div>
+            
+            <div>
+                <div id="visualization">
+                    <svg id="gearSvg"></svg>
+                </div>
+                
+                <div id="formulaDisplay" class="formula-display" style="display: none;">
+                    <strong>Mathematical Formula:</strong><br>
+                    For n pegs at positions p₁, p₂, ..., pₙ:<br>
+                    r₁ = 2 × Σ((-1)ⁱ × (pᵢ₊₁ - pᵢ)) / k<br>
+                    where k = 3 for even n, k = 1 for odd n
+                </div>
+            </div>
+        </div>
+        
+        <div id="result"></div>
+        
+        <div class="stats-display" id="statsDisplay" style="display: none;">
+            <div class="stat-card">
+                <div class="stat-value" id="totalTeeth">0</div>
+                <div class="stat-label">Total Teeth</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="gearRatio">0</div>
+                <div class="stat-label">Gear Ratio</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="mechanicalAdvantage">0</div>
+                <div class="stat-label">Mech. Advantage</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalDistance">0</div>
+                <div class="stat-label">Total Distance</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentGears = [];
+        let animationId = null;
+        let animationSpeed = 1;
+        let challengeMode = false;
+        let challengeScore = 0;
+        
+        // Animation speed control
+        document.getElementById('animSpeed').addEventListener('input', function(e) {
+            animationSpeed = parseFloat(e.value);
+            document.getElementById('speedValue').textContent = animationSpeed.toFixed(1) + 'x';
+        });
+
+        function solution(pegs) {
+            const n = pegs.length;
+            if (n < 2) return [-1, -1];
+
+            if (n === 2) {
+                const distance = pegs[1] - pegs[0];
+                const r1 = (2.0 * distance) / 3.0;
+                
+                if (r1 < 1 || distance - r1 < 1) return [-1, -1];
+                
+                return toFraction(r1);
+            }
+
+            let sum = 0;
+            for (let i = 0; i < n - 1; i++) {
+                sum += Math.pow(-1, i) * (pegs[i + 1] - pegs[i]);
+            }
+
+            let numerator, denominator;
+            if (n % 2 === 0) {
+                numerator = 2 * sum;
+                denominator = 3;
+            } else {
+                numerator = 2 * sum;
+                denominator = 1;
+            }
+
+            const gcd = getGCD(Math.abs(numerator), denominator);
+            numerator /= gcd;
+            denominator /= gcd;
+
+            const r1 = numerator / denominator;
+            if (r1 < 1) return [-1, -1];
+
+            let currentRadius = r1;
+            for (let i = 0; i < n - 1; i++) {
+                const distance = pegs[i + 1] - pegs[i];
+                const nextRadius = distance - currentRadius;
+                if (nextRadius < 1) return [-1, -1];
+                currentRadius = nextRadius;
+            }
+
+            return [numerator, denominator];
+        }
+
+        function toFraction(decimal) {
+            const tolerance = 1e-6;
+            let num = 1;
+            let den = 1;
+            let lastNum = 0;
+            let lastDen = 1;
+            
+            while (Math.abs(decimal - num / den) > tolerance) {
+                if (decimal > num / den) {
+                    lastNum = num;
+                    lastDen = den;
+                    num = num + lastNum;
+                    den = den + lastDen;
+                } else {
+                    const tempNum = num;
+                    const tempDen = den;
+                    num = lastNum + num;
+                    den = lastDen + den;
+                    lastNum = tempNum;
+                    lastDen = tempDen;
+                }
+            }
+            
+            return [num, den];
+        }
+
+        function getGCD(a, b) {
+            while (b !== 0) {
+                const temp = b;
+                b = a % b;
+                a = temp;
+            }
+            return a;
+        }
+
+        function calculateAllRadii(pegs, firstRadius) {
+            const radii = [firstRadius];
+            for (let i = 0; i < pegs.length - 1; i++) {
+                const distance = pegs[i + 1] - pegs[i];
+                const nextRadius = distance - radii[i];
+                radii.push(nextRadius);
+            }
+            return radii;
+        }
+
+        function drawGear(svg, x, y, radius, teeth, rotation, className = '', index = 0, showLabel = true) {
+            const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            g.setAttribute('transform', `translate(${x}, ${y}) rotate(${rotation})`);
+            
+            // Draw gear fill
+            const fillCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            fillCircle.setAttribute('r', radius);
+            fillCircle.setAttribute('class', `gear-fill ${className}`);
+            g.appendChild(fillCircle);
+            
+            // Draw gear circle
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('r', radius);
+            circle.setAttribute('class', `gear ${className}`);
+            g.appendChild(circle);
+            
+            // Draw teeth with better proportions
+            const toothHeight = Math.min(10, radius * 0.2);
+            const angleStep = 360 / teeth;
+            
+            for (let i = 0; i < teeth; i++) {
+                const angle = i * angleStep;
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                const toothWidth = angleStep * 0.3;
+                const startAngle = (angle - toothWidth) * Math.PI / 180;
+                const endAngle = (angle + toothWidth) * Math.PI / 180;
+                
+                const x1 = radius * Math.cos(startAngle);
+                const y1 = radius * Math.sin(startAngle);
+                const x2 = (radius + toothHeight) * Math.cos((angle - toothWidth/2) * Math.PI / 180);
+                const y2 = (radius + toothHeight) * Math.sin((angle - toothWidth/2) * Math.PI / 180);
+                const x3 = (radius + toothHeight) * Math.cos((angle + toothWidth/2) * Math.PI / 180);
+                const y3 = (radius + toothHeight) * Math.sin((angle + toothWidth/2) * Math.PI / 180);
+                const x4 = radius * Math.cos(endAngle);
+                const y4 = radius * Math.sin(endAngle);
+                
+                path.setAttribute('d', `M ${x1} ${y1} L ${x2} ${y2} L ${x3} ${y3} L ${x4} ${y4}`);
+                path.setAttribute('class', `gear-teeth ${className}`);
+                g.appendChild(path);
+            }
+            
+            // Draw center peg
+            const peg = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            peg.setAttribute('r', 5);
+            peg.setAttribute('class', 'peg');
+            g.appendChild(peg);
+            
+            svg.appendChild(g);
+            
+            // Add speed label if enabled
+            if (showLabel && document.getElementById('showLabels').checked) {
+                const speedText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                speedText.setAttribute('x', x);
+                speedText.setAttribute('y', y - radius - 20);
+                speedText.setAttribute('class', 'speed-indicator');
+                speedText.textContent = `Gear ${index + 1}`;
+                svg.appendChild(speedText);
+            }
+            
+            return g;
+        }
+
+        function visualizeProblem() {
+            const input = document.getElementById('pegInput').value;
+            const pegs = input.split(',').map(x => parseInt(x.trim())).filter(x => !isNaN(x));
+            
+            if (pegs.length < 2) {
+                showError('Please enter at least 2 peg positions');
+                return;
+            }
+            
+            pegs.sort((a, b) => a - b);
+            
+            const result = solution(pegs);
+            const svg = document.getElementById('gearSvg');
+            svg.innerHTML = '';
+            currentGears = [];
+            
+            const svgWidth = svg.clientWidth;
+            const svgHeight = svg.clientHeight;
+            const padding = 80;
+            
+            const minPeg = Math.min(...pegs);
+            const maxPeg = Math.max(...pegs);
+            const scale = (svgWidth - 2 * padding) / (maxPeg - minPeg || 1);
+            
+            if (result[0] === -1) {
+                showError('No valid solution exists for these peg positions');
+                
+                pegs.forEach(peg => {
+                    const x = padding + (peg - minPeg) * scale;
+                    const pegCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    pegCircle.setAttribute('cx', x);
+                    pegCircle.setAttribute('cy', svgHeight / 2);
+                    pegCircle.setAttribute('r', 5);
+                    pegCircle.setAttribute('class', 'peg');
+                    svg.appendChild(pegCircle);
+                });
+                
+                document.getElementById('statsDisplay').style.display = 'none';
+                return;
+            }
+            
+            const firstRadius = result[0] / result[1];
+            const radii = calculateAllRadii(pegs, firstRadius);
+            
+            // Calculate total teeth and stats
+            let totalTeeth = 0;
+            
+            radii.forEach((radius, i) => {
+                const x = padding + (pegs[i] - minPeg) * scale;
+                const y = svgHeight / 2;
+                const teeth = Math.max(12, Math.floor(radius * 2.5));
+                totalTeeth += teeth;
+                const className = i === 0 ? 'first' : (i === radii.length - 1 ? 'last' : '');
+                
+                const gear = drawGear(svg, x, y, radius * scale * 0.7, teeth, 0, className, i);
+                currentGears.push({
+                    element: gear,
+                    radius: radius,
+                    teeth: teeth,
+                    speed: i === 0 ? 2 : (i === radii.length - 1 ? 1 : 0),
+                    x: x,
+                    y: y
+                });
+            });
+            
+            showResult(result, radii, pegs);
+            updateStats(radii, pegs, totalTeeth);
+        }
+
+        function updateStats(radii, pegs, totalTeeth) {
+            const gearRatio = radii[0] / radii[radii.length - 1];
+            const mechanicalAdvantage = 1 / gearRatio;
+            const totalDistance = pegs[pegs.length - 1] - pegs[0];
+            
+            document.getElementById('totalTeeth').textContent = totalTeeth;
+            document.getElementById('gearRatio').textContent = gearRatio.toFixed(2) + ':1';
+            document.getElementById('mechanicalAdvantage').textContent = mechanicalAdvantage.toFixed(2);
+            document.getElementById('totalDistance').textContent = totalDistance;
+            
+            document.getElementById('statsDisplay').style.display = 'grid';
+        }
+
+        function showResult(result, radii, pegs) {
+            const resultDiv = document.getElementById('result');
+            const firstRadius = result[0] / result[1];
+            
+            let html = '<div class="result">';
+            html += '<h3>✅ Solution Found!</h3>';
+            html += `<p><strong>First gear radius:</strong> ${result[1] === 1 ? result[0] : result[0] + '/' + result[1]} = ${firstRadius.toFixed(3)}</p>`;
+            html += '<div class="gear-info">';
+            
+            radii.forEach((radius, i) => {
+                const speed = i === 0 ? 2 : (i === radii.length - 1 ? 1 : 
+                    (i % 2 === 0 ? 2 * radii[radii.length - 1] / radius : 
+                    -2 * radii[radii.length - 1] / radius));
+                const teeth = Math.max(12, Math.floor(radius * 2.5));
+                const className = i === 0 ? 'first' : (i === radii.length - 1 ? 'last' : '');
+                
+                html += `<div class="gear-card ${className}">`;
+                html += `<h4>Gear ${i + 1} ${i === 0 ? '(First)' : i === radii.length - 1 ? '(Last)' : ''}</h4>`;
+                html += `<div class="gear-stat"><span class="gear-stat-label">Position:</span><span class="gear-stat-value">${pegs[i]}</span></div>`;
+                html += `<div class="gear-stat"><span class="gear-stat-label">Radius:</span><span class="gear-stat-value">${radius.toFixed(3)}</span></div>`;
+                html += `<div class="gear-stat"><span class="gear-stat-label">Teeth:</span><span class="gear-stat-value">${teeth}</span></div>`;
+                html += `<div class="gear-stat"><span class="gear-stat-label">Speed:</span><span class="gear-stat-value">${Math.abs(speed).toFixed(2)}x</span></div>`;
+                html += `<div class="gear-stat"><span class="gear-stat-label">Direction:</span><span class="gear-stat-value">${speed > 0 ? '↻' : '↺'}</span></div>`;
+                html += `</div>`;
+            });
+            
+            html += '</div>';
+            html += '</div>';
+            
+            resultDiv.innerHTML = html;
+        }
+
+        function showError(message) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `<div class="result error"><h3>❌ Error</h3><p>${message}</p></div>`;
+        }
+
+        function animateGears() {
+            if (!currentGears.length) {
+                showError('Please visualize a solution first');
+                return;
+            }
+            
+            if (animationId) {
+                return;
+            }
+            
+            let rotation = 0;
+            const animate = () => {
+                rotation += animationSpeed;
+                
+                currentGears.forEach((gear, i) => {
+                    const speed = i === 0 ? 2 : (i === currentGears.length - 1 ? 1 : 
+                        (i % 2 === 0 ? 2 * currentGears[currentGears.length - 1].radius / gear.radius : 
+                        -2 * currentGears[currentGears.length - 1].radius / gear.radius));
+                    
+                    const currentRotation = rotation * speed;
+                    gear.element.setAttribute('transform', 
+                        `translate(${gear.x}, ${gear.y}) rotate(${currentRotation})`);
+                });
+                
+                animationId = requestAnimationFrame(animate);
+            };
+            
+            animate();
+        }
+
+        function stopAnimation() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+        }
+
+        function loadExample(pegs, name) {
+            document.getElementById('pegInput').value = pegs.join(', ');
+            visualizeProblem();
+            if (name) {
+                const resultDiv = document.getElementById('result');
+                if (resultDiv.firstChild) {
+                    resultDiv.firstChild.innerHTML = `<h3>${name} Example</h3>` + resultDiv.firstChild.innerHTML;
+                }
+            }
+        }
+
+        function toggleFormula() {
+            const formulaDisplay = document.getElementById('formulaDisplay');
+            formulaDisplay.style.display = document.getElementById('showFormula').checked ? 'block' : 'none';
+        }
+
+        function updateVisualization() {
+            visualizeProblem();
+        }
+
+        function generateRandomProblem() {
+            const numPegs = Math.floor(Math.random() * 5) + 2; // 2-6 pegs
+            const pegs = [Math.floor(Math.random() * 20) + 1];
+            
+            for (let i = 1; i < numPegs; i++) {
+                const lastPeg = pegs[i - 1];
+                const gap = Math.floor(Math.random() * 50) + 10;
+                pegs.push(lastPeg + gap);
+            }
+            
+            document.getElementById('pegInput').value = pegs.join(', ');
+            visualizeProblem();
+        }
+
+        function startChallenge() {
+            challengeMode = true;
+            challengeScore = 0;
+            const challengeInfo = document.getElementById('challengeInfo');
+            challengeInfo.innerHTML = `
+                <div class="challenge-mode">
+                    <h3>🏆 Challenge Mode Active!</h3>
+                    <p>Try to find valid configurations that result in interesting gear ratios!</p>
+                    <p>Score: <strong id="challengeScore">0</strong></p>
+                </div>
+            `;
+            generateRandomProblem();
+        }
+
+        // Load initial example
+        window.onload = () => visualizeProblem();
+    </script>
+</body>
+</html>
