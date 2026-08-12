@@ -105,4 +105,10 @@ This problem was part of Google's Foobar coding challenge, a secret recruiting t
 
 ## 📄 License
 
-This project is available for educational purposes. Feel free to use it as a reference for similar problems or algorithm study.
+The owner-authored implementation, visualisation code and documentation are
+licensed under GNU GPL version 3 only (`GPL-3.0-only`). See `LICENSE` and
+`LICENSING.md`.
+
+Google Foobar challenge prompts, expressions, and Google-supplied test vectors
+are excluded from this grant and retain their original rights. This independent
+project is not affiliated with or endorsed by Google.
