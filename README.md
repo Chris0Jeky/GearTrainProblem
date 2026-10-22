@@ -23,6 +23,15 @@ javac -d out/production/GearTrainProblem src/*.java
 java -cp out/production/GearTrainProblem Main
 ```
 
+The example runner prints sample results. Run the assertion-based regression suite
+for null input, minimum gear radii, fractional boundaries, and exhaustive small
+peg layouts with:
+
+```bash
+javac -d out/tests src/*.java tests/SolutionTest.java
+java -cp out/tests SolutionTest
+```
+
 ### Visual Demo
 
 Open `visual-demo.html` in a web browser to see an interactive visualization of the gear train problem with animation.
