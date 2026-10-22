@@ -7,9 +7,8 @@ public class Solution {
         *  the validation fails, it returns an array with the values -1, -1. If everything is valid, it returns an
         *  array with the calculated result and the value returned by the "equationBuilder" method.
         * */
-        int maxN = pegs.length - 1;
         int[] result;
-        if (pegs == null || maxN + 1 < 2 || maxN + 1 > 20) {
+        if (pegs == null || pegs.length < 2 || pegs.length > 20) {
             result = new int[]{-1, -1};
             return result;
         }
@@ -36,8 +35,8 @@ public class Solution {
         int equRes = 0;
         equRes = getEquRes(pegs, maxN, equRes);
         if (pegs.length % 2 == 0){
-            if ((int) (equRes % 1.5) == 0) {
-                equRes = (int) (equRes / 1.5);
+            if (equRes % 3 == 0) {
+                equRes = (equRes / 3) * 2;
                 equResArr = new int[]{equRes, 1};
             }
             else {
@@ -98,13 +97,13 @@ public class Solution {
     }
     public static boolean pegListValidation(int[] pegs, int radOfFirstPeg, int denom) {
         double radiusOfPeg = radOfFirstPeg;
-        if (radOfFirstPeg < 2) {
+        if (radOfFirstPeg < 2 * denom) {
             return false;
         }
         if (denom == 3){
             for (int i = 1; i < pegs.length; i++) {
                 radiusOfPeg = pegs[i]*3 - pegs[i - 1]*3 - radiusOfPeg;
-                if (radiusOfPeg < 0) {
+                if (radiusOfPeg < denom) {
                     return false;
                 }
             }
@@ -112,7 +111,7 @@ public class Solution {
         else {
             for (int i = 1; i < pegs.length; i++) {
                 radiusOfPeg = pegs[i] - pegs[i - 1] - radiusOfPeg;
-                if (radiusOfPeg < 0) {
+                if (radiusOfPeg < denom) {
                     return false;
                 }
             }
